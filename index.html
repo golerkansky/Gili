@@ -14,36 +14,66 @@
 <link rel="apple-touch-icon" href="icon-192.png">
 <style>
 :root{
-  --cream:#FFF0FA;--coral:#FF6B6B;--coral-d:#D94F4F;
-  --purple:#8B5CF6;--purple-l:#EDE9FE;--purple-d:#6D28D9;
-  --sky:#06B6D4;--sky-d:#0891B2;
-  --sun:#FCD34D;--sun-d:#F59E0B;
-  --mint:#10B981;--mint-d:#059669;
-  --orange:#FF8C42;--orange-d:#E07020;
-  --pink:#EC4899;--pink-d:#BE185D;
-  --ink:#1E1B4B;--muted:#6B7280;--border:#E9D5FF;
-  --shadow:0 6px 24px rgba(139,92,246,.15);
+  --cream:#FFFDF0;
+  --purple:#7B2FBE;--purple-l:#EDE9FE;--purple-d:#5A1F8C;
+  --pink:#FF4ECD;--pink-d:#CC00A0;
+  --sky:#00C2FF;--sky-d:#0090CC;
+  --sun:#FFD000;--sun-d:#E6A800;
+  --mint:#00D97E;--mint-d:#00A85F;
+  --orange:#FF7A00;--orange-d:#CC6200;
+  --coral:#FF4757;--coral-d:#CC1F2D;
+  --green:#2ED573;--lime:#A8FF3E;
+  --ink:#1A0A2E;--muted:#6B5B8A;--border:#D4B8FF;
+  --shadow:0 8px 32px rgba(123,47,190,.2);
+  --shadow-lg:0 16px 48px rgba(123,47,190,.25);
 }
 *{box-sizing:border-box;margin:0;padding:0;touch-action:manipulation;-webkit-tap-highlight-color:transparent}
 body{font-family:'Heebo',sans-serif;background:var(--cream);min-height:100vh;direction:rtl;
   -webkit-text-size-adjust:100%;overflow-x:hidden}
 body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:
-    radial-gradient(ellipse at 5% 10%,rgba(236,72,153,.18) 0%,transparent 40%),
-    radial-gradient(ellipse at 95% 85%,rgba(139,92,246,.18) 0%,transparent 40%),
-    radial-gradient(ellipse at 50% 5%,rgba(252,211,77,.20) 0%,transparent 40%),
-    radial-gradient(ellipse at 10% 90%,rgba(16,185,129,.15) 0%,transparent 40%)}
+    radial-gradient(ellipse at 5% 10%,rgba(255,78,205,.25) 0%,transparent 35%),
+    radial-gradient(ellipse at 95% 85%,rgba(123,47,190,.25) 0%,transparent 35%),
+    radial-gradient(ellipse at 50% 0%,rgba(255,208,0,.30) 0%,transparent 35%),
+    radial-gradient(ellipse at 0% 90%,rgba(0,194,255,.20) 0%,transparent 35%),
+    radial-gradient(ellipse at 100% 10%,rgba(0,217,126,.20) 0%,transparent 35%);
+  animation: bgPulse 8s ease-in-out infinite alternate}
+@keyframes bgPulse{
+  from{opacity:.8} to{opacity:1}
+}
+/* Floating shapes */
+body::after{content:'⭐✨🌈💫🎯🎮🏆🎪';position:fixed;inset:0;z-index:0;pointer-events:none;
+  font-size:24px;overflow:hidden;opacity:0.06;
+  display:flex;flex-wrap:wrap;align-items:flex-start;justify-content:space-around;
+  letter-spacing:40px;line-height:80px;padding:20px;filter:blur(0px)}
 .app{position:relative;z-index:1;max-width:800px;margin:0 auto;padding:12px 14px 52px}
 
 /* ── HEADER ── */
 .header{text-align:center;padding:20px 0 8px;animation:dropIn .6s cubic-bezier(.175,.885,.32,1.275)}
 @keyframes dropIn{from{transform:translateY(-36px) scale(.92);opacity:0}to{transform:none;opacity:1}}
-.header h1{font-family:'Baloo 2',cursive;font-size:clamp(30px,8vw,48px);font-weight:800;
-  background:linear-gradient(135deg,#EC4899,#8B5CF6,#06B6D4);
+.header h1{font-family:'Baloo 2',cursive;font-size:clamp(32px,9vw,54px);font-weight:800;
+  background:linear-gradient(135deg,#FF4ECD,#7B2FBE,#00C2FF);
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  line-height:1.15;text-shadow:none;letter-spacing:-0.5px}
-.header .tagline{font-size:15px;color:var(--purple);font-weight:700;margin-top:4px;
-  background:var(--purple-l);display:inline-block;padding:4px 16px;border-radius:99px}
+  line-height:1.1;text-shadow:none;letter-spacing:-1px}
+.header .tagline{font-size:16px;color:#fff;font-weight:800;margin-top:6px;
+  background:linear-gradient(135deg,var(--purple),var(--pink));
+  display:inline-block;padding:6px 20px;border-radius:99px;
+  box-shadow:0 4px 12px rgba(123,47,190,.4)}
+
+
+/* ── GILI CHARACTER ── */
+.gili-char{display:inline-block;animation:giliFloat 3s ease-in-out infinite}
+@keyframes giliFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-8px)}}
+.gili-char.bounce{animation:giliBounce .5s cubic-bezier(.175,.885,.32,1.275)}
+@keyframes giliBounce{0%{transform:scale(1)}50%{transform:scale(1.2) rotate(-5deg)}100%{transform:scale(1)}}
+.gili-char.celebrate{animation:giliCelebrate 1s ease-in-out}
+@keyframes giliCelebrate{0%,100%{transform:rotate(0)}25%{transform:rotate(-15deg) scale(1.2)}75%{transform:rotate(15deg) scale(1.2)}}
+.char-area{text-align:center;margin:8px 0;position:relative}
+.char-bubble{display:inline-block;background:#fff;border:3px solid var(--purple);border-radius:18px;
+  padding:8px 16px;font-size:14px;font-weight:700;color:var(--purple);margin-bottom:4px;
+  position:relative;animation:fadeIn .3s ease}
+.char-bubble::after{content:'';position:absolute;bottom:-12px;left:50%;transform:translateX(-50%);
+  border:6px solid transparent;border-top-color:var(--purple)}
 
 /* ── LOADING SCREEN ── */
 #loading-screen{position:fixed;inset:0;z-index:100;display:none!important;
@@ -104,7 +134,7 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   border-radius:14px;border:none;cursor:pointer;transition:all .16s;background:transparent;
   color:var(--muted);display:flex;align-items:center;gap:4px}
 .tab.active{background:linear-gradient(135deg,var(--purple),var(--pink));color:#fff;
-  box-shadow:0 5px 0 var(--purple-d);transform:translateY(-2px)}
+  box-shadow:0 5px 0 var(--purple-d),0 0 20px rgba(255,78,205,.3);transform:translateY(-2px)}
 .tab:not(.active):hover{background:var(--purple-l)}
 .badge{background:rgba(0,0,0,.12);border-radius:99px;font-size:11px;padding:1px 7px;font-weight:700}
 .tab.active .badge{background:rgba(255,255,255,.3)}
@@ -118,8 +148,10 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
 .progress-label{font-size:12px;font-weight:700;color:var(--muted);margin-bottom:4px;text-align:center}
 .progress-track{background:#F1F5F9;border-radius:99px;height:10px;overflow:hidden;margin-bottom:14px}
 .progress-fill{height:100%;
-  background:linear-gradient(90deg,#EC4899,#8B5CF6,#06B6D4);
+  background:linear-gradient(90deg,#FF4ECD,#7B2FBE,#00C2FF,#00D97E);
+  background-size:200% 100%;animation:progressShimmer 2s linear infinite;
   border-radius:99px;transition:width .6s cubic-bezier(.4,0,.2,1)}
+@keyframes progressShimmer{0%{background-position:100% 0}100%{background-position:0% 0}}
 
 /* ── VOCAB CARD ── */
 .vocab-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:8px;flex-wrap:wrap;gap:6px}
@@ -128,31 +160,35 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   background:#fff;color:var(--muted);border:1.5px solid var(--border);border-radius:99px;cursor:pointer;transition:all .13s}
 .ngbtn-sm:hover{border-color:var(--coral);color:var(--coral)}
 
-.vocab-card{background:#fff;border-radius:22px;padding:20px 18px 16px;margin-bottom:12px;
-  box-shadow:0 6px 0 rgba(139,92,246,.2),0 10px 30px rgba(139,92,246,.1);
-  border:2px solid var(--purple-l);
+.vocab-card{background:#fff;border-radius:24px;padding:20px 18px 16px;margin-bottom:14px;
+  box-shadow:0 8px 0 rgba(123,47,190,.2),0 12px 32px rgba(123,47,190,.12);
+  border:3px solid var(--purple-l);
   animation:cardIn .3s ease both;transition:opacity .3s,transform .3s}
-.vocab-card:nth-child(odd){border-color:#FDE68A;box-shadow:0 6px 0 rgba(245,158,11,.2),0 10px 30px rgba(245,158,11,.1)}
+.vocab-card:nth-child(2n){border-color:#FFD000;box-shadow:0 8px 0 rgba(230,168,0,.25),0 12px 32px rgba(230,168,0,.12)}
+.vocab-card:nth-child(3n){border-color:#00C2FF;box-shadow:0 8px 0 rgba(0,144,204,.25),0 12px 32px rgba(0,144,204,.12)}
+.vocab-card:nth-child(4n){border-color:#00D97E;box-shadow:0 8px 0 rgba(0,168,95,.25),0 12px 32px rgba(0,168,95,.12)}
 @keyframes cardIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:none}}
 .vocab-card.removing{opacity:0;transform:translateX(70px)}
-.en{font-family:'Baloo 2',cursive;font-size:32px;font-weight:800;
-  background:linear-gradient(135deg,var(--purple),var(--pink));
+.en{font-family:'Baloo 2',cursive;font-size:34px;font-weight:800;
+  background:linear-gradient(135deg,var(--purple),var(--pink),var(--sky));
   -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-  line-height:1.1}
-.he{font-size:20px;font-weight:700;color:var(--ink);margin-top:4px}
+  line-height:1.1;letter-spacing:-0.5px}
+.he{font-size:22px;font-weight:800;color:var(--ink);margin-top:4px}
 .vc-divider{border:none;height:1.5px;background:linear-gradient(90deg,var(--purple),var(--sky),transparent);margin:11px 0;border-radius:99px}
 .tip-box{background:linear-gradient(135deg,#FFFBEB,#FEF3C7);border-right:5px solid var(--sun-d);
   border-radius:16px;padding:13px 15px;font-size:15px;color:var(--ink);line-height:1.7}
 .tip-box b{color:#B45309;font-size:16px}
+.tip-box .tip-label{font-size:11px;font-weight:700;color:#B45309;margin-bottom:4px;display:block}
 .vc-actions{display:flex;gap:8px;margin-top:11px}
-.spk-btn{padding:10px 15px;background:linear-gradient(135deg,#E0F2FE,#BAE6FD);
-  border:2px solid #38BDF8;border-radius:16px;
-  font-family:'Baloo 2',cursive;font-size:15px;font-weight:800;color:#0369A1;cursor:pointer;transition:all .13s}
-.spk-btn:active{transform:scale(.96)}
-.know-btn{flex:1;padding:10px 15px;background:linear-gradient(135deg,#10B981,#059669);border:none;border-radius:16px;
-  font-family:'Baloo 2',cursive;font-size:15px;font-weight:800;color:#fff;cursor:pointer;
-  box-shadow:0 5px 0 #047857;transition:all .13s;display:flex;align-items:center;justify-content:center;gap:6px}
-.know-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #047857}
+.spk-btn{padding:12px 15px;background:linear-gradient(135deg,#00C2FF,#0090CC);
+  border:none;border-radius:18px;box-shadow:0 5px 0 #006699,0 0 16px rgba(0,194,255,.3);
+  font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:#fff;cursor:pointer;transition:all .13s}
+.spk-btn:active{transform:translateY(3px);box-shadow:0 2px 0 #006699}
+.know-btn{flex:1;padding:12px 15px;background:linear-gradient(135deg,#00D97E,#00A85F);border:none;border-radius:18px;
+  font-family:'Baloo 2',cursive;font-size:16px;font-weight:800;color:#fff;cursor:pointer;
+  box-shadow:0 6px 0 #007040,0 0 20px rgba(0,217,126,.3);transition:all .13s;
+  display:flex;align-items:center;justify-content:center;gap:6px}
+.know-btn:active{transform:translateY(4px);box-shadow:0 2px 0 #007040}
 .show-more-btn{display:block;margin:0 auto 14px;padding:8px 22px;font-family:'Baloo 2',cursive;
   font-size:14px;font-weight:700;background:var(--purple-l);color:var(--purple);border:none;border-radius:99px;cursor:pointer;transition:all .14s}
 .show-more-btn:hover{background:var(--purple);color:#fff}
@@ -535,7 +571,30 @@ body::before{content:'';position:fixed;inset:0;z-index:0;pointer-events:none;
   <!-- TAB 1: GAMES HUB -->
   <div class="panel" id="panel-1">
     <div id="games-hub">
-      <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--purple);text-align:center;margin-bottom:16px">בחר משחק!</div>
+      <div style="text-align:center;margin-bottom:8px">
+        <svg class="gili-char" style="animation-duration:2s" width="60" height="68" viewBox="0 0 80 90" xmlns="http://www.w3.org/2000/svg">
+          <rect x="24" y="55" width="32" height="28" rx="10" fill="#FF4ECD"/>
+          <rect x="24" y="62" width="32" height="6" fill="#CC00A0"/>
+          <circle cx="40" cy="38" r="22" fill="#FFCC80"/>
+          <ellipse cx="40" cy="18" rx="20" ry="10" fill="#5D4037"/>
+          <circle cx="22" cy="26" r="7" fill="#5D4037"/>
+          <circle cx="58" cy="26" r="7" fill="#5D4037"/>
+          <circle cx="32" cy="36" r="5" fill="white"/><circle cx="48" cy="36" r="5" fill="white"/>
+          <circle cx="33" cy="37" r="3" fill="#1A0A2E"/><circle cx="49" cy="37" r="3" fill="#1A0A2E"/>
+          <circle cx="34" cy="36" r="1" fill="white"/><circle cx="50" cy="36" r="1" fill="white"/>
+          <path d="M32 46 Q40 53 48 46" stroke="#E65100" stroke-width="2.5" fill="none" stroke-linecap="round"/>
+          <circle cx="26" cy="44" r="5" fill="#FF8A65" opacity=".5"/>
+          <circle cx="54" cy="44" r="5" fill="#FF8A65" opacity=".5"/>
+          <!-- Raised arms for excitement -->
+          <rect x="4" y="48" width="18" height="10" rx="5" fill="#FF4ECD" transform="rotate(-40 4 48)"/>
+          <rect x="58" y="48" width="18" height="10" rx="5" fill="#FF4ECD" transform="rotate(40 76 48)"/>
+          <circle cx="6" cy="58" r="6" fill="#FFCC80"/>
+          <circle cx="74" cy="58" r="6" fill="#FFCC80"/>
+          <rect x="28" y="80" width="10" height="10" rx="4" fill="#1565C0"/>
+          <rect x="42" y="80" width="10" height="10" rx="4" fill="#1565C0"/>
+        </svg>
+      </div>
+      <div style="font-family:'Baloo 2',cursive;font-size:20px;font-weight:800;color:var(--purple);text-align:center;margin-bottom:16px">בחר משחק! 🎮</div>
       <div class="games-grid" id="games-grid"></div>
     </div>
     <div id="game-area" style="display:none">
@@ -925,10 +984,22 @@ function switchTab(i){
 //  HELPERS
 // ════════════════════════════════════
 function speak(word){
-  if(!window.speechSynthesis)return;
-  const u=new SpeechSynthesisUtterance(word);
-  u.lang='en-US';u.rate=0.82;u.pitch=1.05;
-  speechSynthesis.cancel();speechSynthesis.speak(u);
+  if(!window.speechSynthesis) return;
+  speechSynthesis.cancel();
+  // Try to find a good English voice
+  const voices = speechSynthesis.getVoices();
+  const preferred = voices.find(v=>v.name.includes('Samantha')) ||
+                    voices.find(v=>v.name.includes('Karen')) ||
+                    voices.find(v=>v.lang==='en-US' && v.localService) ||
+                    voices.find(v=>v.lang==='en-US') ||
+                    voices.find(v=>v.lang.startsWith('en'));
+  const u = new SpeechSynthesisUtterance(word);
+  u.lang = 'en-US';
+  u.rate = 0.65;   // slow and clear for kids
+  u.pitch = 1.1;   // slightly higher, friendlier
+  u.volume = 1;
+  if(preferred) u.voice = preferred;
+  speechSynthesis.speak(u);
 }
 
 const tipsDB={
@@ -1140,6 +1211,18 @@ function renderFlash(){
     <button class="fc-spk" onclick="speak('${w.en.replace(/'/g,"\\'")}')">🔊</button>
     <button class="fc-next" onclick="fcMove(1)">הבא →</button>
   </div>`;
+  // Add touch swipe support
+  const fcEl = area.querySelector('.flashcard');
+  if(fcEl){
+    let startX=0;
+    fcEl.addEventListener('touchstart', e=>{ startX=e.touches[0].clientX; }, {passive:true});
+    fcEl.addEventListener('touchend', e=>{
+      const diff = startX - e.changedTouches[0].clientX;
+      if(Math.abs(diff)>50){ fcMove(diff>0?1:-1); }
+      else { flipFC(); }
+    }, {passive:true});
+    fcEl.onclick = null; // remove old onclick, use touch instead on mobile
+  }
   fcFlipped=false;
 }
 function flipFC(){ const fc=document.getElementById('fc'); if(!fc)return; fcFlipped=!fcFlipped; fc.classList.toggle('flipped',fcFlipped); if(fcFlipped)speak(vocab[fcIdx].en); }
@@ -1152,6 +1235,29 @@ function fcMove(d){ if(!vocab.length)return; fcIdx=(fcIdx+d+vocab.length)%vocab.
 let awState = {en:'', he:'', validated:false};
 
 function isHebrew(text){ return /[א-ת]/.test(text); }
+
+async function generateMnemonic(en, he){
+  try{
+    const prompt = `צור טיפ שינון קצר ומצחיק בעברית שיעזור לילד לזכור איך אומרים את המילה האנגלית.
+המילה: ${en} = ${he}
+מצא מילה עברית שנשמעת דומה לאנגלית וצור משפט קצר איתה.
+דוגמה: Spoon = כף → "שטפתי את הכף בסבון — סבון נשמע כמו SPOON!"
+דוגמה: Table = שולחן → "על השולחן יש טבעת — טבעת נשמע כמו TABLE!"
+החזר רק את המשפט הקצר, ללא הסברים נוספים.`;
+
+    const response = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: {'Content-Type': 'application/json'},
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 150,
+        messages: [{role:'user', content: prompt}]
+      })
+    });
+    const data = await response.json();
+    return data?.content?.[0]?.text?.trim() || '';
+  }catch(e){ return ''; }
+}
 function isEnglish(text){ return /^[a-zA-Z\s'-]+$/.test(text.trim()) && text.trim().length>0; }
 
 function openAddWord(){
@@ -1256,30 +1362,28 @@ async function processWord(){
       btn.disabled=false; return;
     }
 
-    // Generate auto tip
-    let autoTip='';
-    try{
-      const tUrl=`https://translate.googleapis.com/translate_a/single?client=gtx&sl=en&tl=he&dt=t&q=${encodeURIComponent(en+' sounds like')}`;
-      autoTip=`${en} = ${he}`;
-    }catch(e){}
-
-    // Success — show preview and AUTO-SAVE
-    awState={en,he,validated:true,tip:autoTip};
+    // Show preview
+    awState={en,he,validated:true,tip:''};
     document.getElementById('aw-en-preview').textContent=en;
     document.getElementById('aw-he-preview').textContent=he;
     document.getElementById('aw-preview').style.display='block';
-    if(autoTip){
-      document.getElementById('aw-tip-text').textContent=autoTip;
+    document.getElementById('aw-input').className='aw-valid';
+    statusEl.textContent='🤖 יוצר טיפ שינון...';
+    statusEl.className='modal-status loading';
+    btn.textContent='מכין...'; btn.disabled=true;
+
+    // Generate AI mnemonic
+    const tip = await generateMnemonic(en, he);
+    awState.tip = tip;
+    if(tip){
+      document.getElementById('aw-tip-text').textContent=tip;
       document.getElementById('aw-tip-box').style.display='block';
     }
-    document.getElementById('aw-input').className='aw-valid';
-    statusEl.textContent='✅ נשמר! המילה נוספה למאגר 🎉'; statusEl.className='modal-status ok';
+    statusEl.textContent='✅ המילה תקינה! לחץ שמור להוספה.';
+    statusEl.className='modal-status ok';
+    btn.textContent='💾 שמור מילה';
     btn.disabled=false;
-
-    // Auto-save immediately
-    saveNewWord();
-    // Auto-close after 1.5s
-    setTimeout(closeAddWord, 1500);
+    btn.onclick=saveNewWord;
 
   }catch(e){
     // Only show error if we haven't already succeeded
@@ -1616,6 +1720,9 @@ function initMemoryGame(gc){
             if(a.pair===b.pair){
               matched.push(a.pair);
               document.getElementById('mem-fb').textContent='✓ זוג! 🎉'; document.getElementById('mem-fb').className='g-fb ok';
+              // Speak the English word when matched
+              const matchedWord = pool.find(w=>w.en===a.pair);
+              if(matchedWord) setTimeout(()=>speak(matchedWord.en), 300);
               revealed=[];locked=false;
               if(matched.length===pool.length){ setTimeout(()=>{ gc.innerHTML=`<div class="win-banner"><div class="win-stars">⭐⭐⭐</div><h2>כל הזוגות! ${moves} מהלכים 🏆</h2></div><div class="btn-center"><button class="ngbtn" onclick="startGame('memory')">שוב</button></div>`; burstCenter(); },500); return; }
               render();
