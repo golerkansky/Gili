@@ -661,8 +661,7 @@ body::after{content:'⭐✨🌈💫🎯🎮🏆🎪';position:fixed;inset:0;z-in
             color:#fff;border:none;border-radius:14px;font-family:'Baloo 2',cursive;font-size:18px;
             font-weight:800;cursor:pointer;box-shadow:0 5px 0 var(--purple-d);
             -webkit-appearance:none;touch-action:manipulation;display:block"
-            ontouchend="event.preventDefault();processWord();"
-            onclick="processWord()">
+            onclick="handleAddWordBtn()">
             🔍 בדוק מילה
           </button>
         </div>
@@ -1005,61 +1004,44 @@ function switchTab(i){
 // ════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════
-// Audio cache
-const _audioCache = {};
-let _currentAudio = null;
-
 function speak(word){
-  if(!word) return;
-  // Stop current audio
-  if(_currentAudio){ _currentAudio.pause(); _currentAudio.currentTime=0; }
+  if(!word||!window.speechSynthesis) return;
   speechSynthesis.cancel();
 
-  // Method 1: Google Translate TTS — natural female voice
-  const ttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&tl=en-US&client=tw-ob&q=${encodeURIComponent(word)}`;
-  const audio = _audioCache[word] || new Audio();
-  if(!_audioCache[word]){
-    audio.src = ttsUrl;
-    audio.crossOrigin = 'anonymous';
-    _audioCache[word] = audio;
-  }
-  audio.playbackRate = 0.82; // slightly slower than normal
-  _currentAudio = audio;
-  const playPromise = audio.play();
-  if(playPromise){
-    playPromise.catch(()=>{
-      // Method 2: Web Speech API fallback
-      _speakWithWebSpeech(word);
-    });
-  }
-}
-
-function _speakWithWebSpeech(word){
-  if(!window.speechSynthesis) return;
-  speechSynthesis.cancel();
-  const trySpeak = () => {
+  const doSpeak = () => {
     const voices = speechSynthesis.getVoices();
-    // Priority: Samantha (iOS neural), Karen (AU), Moira (IE), any en-US local
+    
+    // Best female English voices — priority order
     const preferred =
-      voices.find(v=>v.name==='Samantha') ||
-      voices.find(v=>v.name==='Karen') ||
-      voices.find(v=>v.name==='Moira') ||
-      voices.find(v=>v.name==='Tessa') ||
-      voices.find(v=>v.name.includes('Google') && v.lang==='en-US') ||
+      voices.find(v=>v.name==='Samantha') ||           // iOS/macOS — best
+      voices.find(v=>v.name==='Karen') ||               // iOS AU
+      voices.find(v=>v.name==='Moira') ||               // iOS IE
+      voices.find(v=>v.name==='Tessa') ||               // iOS ZA  
+      voices.find(v=>v.name==='Fiona') ||               // macOS SC
+      voices.find(v=>v.name.includes('Zira')) ||        // Windows female
+      voices.find(v=>v.name.includes('Google UK Female')) ||
+      voices.find(v=>v.name.includes('Google US Female')) ||
+      voices.find(v=>v.lang==='en-GB' && v.localService && !v.name.includes('Male')) ||
       voices.find(v=>v.lang==='en-US' && v.localService) ||
-      voices.find(v=>v.lang==='en-GB' && v.localService) ||
       voices.find(v=>v.lang.startsWith('en'));
-    const u = new SpeechSynthesisUtterance(word);
-    u.lang = 'en-US';
-    u.rate = 0.6;
-    u.pitch = 1.15;
-    u.volume = 1;
-    if(preferred) u.voice = preferred;
-    speechSynthesis.speak(u);
+
+    // Say the word slowly first, then repeat slightly faster
+    const sayWord = (rate, delay=0) => {
+      setTimeout(()=>{
+        const u = new SpeechSynthesisUtterance(word);
+        u.lang='en-US'; u.rate=rate; u.pitch=1.1; u.volume=1;
+        if(preferred) u.voice=preferred;
+        speechSynthesis.speak(u);
+      }, delay);
+    };
+
+    // Say it twice: very slow then normal slow
+    sayWord(0.5);       // very slow, clear
+    sayWord(0.75, 2200); // repeat slightly faster
   };
-  // Wait for voices to load if needed
-  if(speechSynthesis.getVoices().length > 0) trySpeak();
-  else { speechSynthesis.onvoiceschanged = ()=>{ trySpeak(); speechSynthesis.onvoiceschanged=null; }; }
+
+  if(speechSynthesis.getVoices().length > 0) doSpeak();
+  else speechSynthesis.addEventListener('voiceschanged', ()=>doSpeak(), {once:true});
 }
 
 const tipsDB={
@@ -1296,29 +1278,19 @@ let awState = {en:'', he:'', validated:false};
 
 function isHebrew(text){ return /[א-ת]/.test(text); }
 
-async function generateMnemonic(en, he){
-  try{
-    const prompt = `צור טיפ שינון קצר ומצחיק בעברית שיעזור לילד לזכור איך אומרים את המילה האנגלית.
-המילה: ${en} = ${he}
-מצא מילה עברית שנשמעת דומה לאנגלית וצור משפט קצר איתה.
-דוגמה: Spoon = כף → "שטפתי את הכף בסבון — סבון נשמע כמו SPOON!"
-דוגמה: Table = שולחן → "על השולחן יש טבעת — טבעת נשמע כמו TABLE!"
-החזר רק את המשפט הקצר, ללא הסברים נוספים.`;
-
-    const response = await fetch('https://api.anthropic.com/v1/messages', {
-      method: 'POST',
-      headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({
-        model: 'claude-sonnet-4-20250514',
-        max_tokens: 150,
-        messages: [{role:'user', content: prompt}]
-      })
-    });
-    const data = await response.json();
-    return data?.content?.[0]?.text?.trim() || '';
-  }catch(e){ return ''; }
+function generateMnemonic(en, he){
+  // Local tip: simple phonetic hint
+  return `${en} = ${he} 💡`;
 }
 function isEnglish(text){ return /^[a-zA-Z\s'-]+$/.test(text.trim()) && text.trim().length>0; }
+
+function handleAddWordBtn(){
+  if(awState.validated){
+    saveNewWord();
+  } else {
+    processWord();
+  }
+}
 
 function openAddWord(){
   document.getElementById('add-modal').style.display='block';
@@ -1329,6 +1301,8 @@ function openAddWord(){
   document.getElementById('aw-input').className='';
   document.getElementById('aw-label').textContent='הקלד מילה בעברית או באנגלית:';
   awState={en:'',he:'',validated:false};
+  const btn=document.getElementById('aw-main-btn');
+  if(btn){btn.textContent='🔍 בדוק מילה';btn.disabled=false;}
   setTimeout(()=>document.getElementById('aw-input').focus(),100);
 }
 
@@ -1423,28 +1397,16 @@ async function processWord(){
       btn.disabled=false; return;
     }
 
-    // Show preview
-    awState={en,he,validated:true,tip:''};
+    // Show preview — wait for user to confirm
+    awState={en,he,validated:true,tip:en+' = '+he};
     document.getElementById('aw-en-preview').textContent=en;
     document.getElementById('aw-he-preview').textContent=he;
     document.getElementById('aw-preview').style.display='block';
     document.getElementById('aw-input').className='aw-valid';
-    statusEl.textContent='🤖 יוצר טיפ שינון...';
-    statusEl.className='modal-status loading';
-    btn.textContent='מכין...'; btn.disabled=true;
-
-    // Generate AI mnemonic
-    const tip = await generateMnemonic(en, he);
-    awState.tip = tip;
-    if(tip){
-      document.getElementById('aw-tip-text').textContent=tip;
-      document.getElementById('aw-tip-box').style.display='block';
-    }
-    statusEl.textContent='✅ המילה תקינה! לחץ שמור להוספה.';
+    statusEl.textContent='✅ המילה תקינה!';
     statusEl.className='modal-status ok';
     btn.textContent='💾 שמור מילה';
     btn.disabled=false;
-    btn.onclick=saveNewWord;
 
   }catch(e){
     // Only show error if we haven't already succeeded
