@@ -1298,7 +1298,7 @@ async function saveNewWord(){
 
   // Add locally
   if(!vocab.find(w=>w.en.toLowerCase()===en.toLowerCase())){
-    vocab.push({en,he,tip});
+    vocab.push({en,he,tip:''});
     localStorage.setItem(LS_WORDS,JSON.stringify(vocab));
   }
   try{ updateBadges(); }catch(e){}
@@ -1307,47 +1307,22 @@ async function saveNewWord(){
   try{ renderFlash(); }catch(e){}
 
   const statusEl=document.getElementById('aw-status');
-  if(statusEl){statusEl.textContent='💾 שומר...';statusEl.className='modal-status loading';}
+  if(statusEl){statusEl.textContent='✅ נשמר!';statusEl.className='modal-status ok';}
+  burstCenter();
+  setTimeout(closeAddWord,1000);
 
-  // Build form body
+  // Send to Google Form ONCE — no-cors (no duplicate)
   const body = 'entry.1498491513=' + encodeURIComponent(en) +
                '&entry.76141600=' + encodeURIComponent(he) +
-               '&entry.1868616600=' + encodeURIComponent(tip||'');
-
-  const FORM_URL = 'https://docs.google.com/forms/d/e/1FAIpQLSfxsfSzKLcqtHxbSxVUA_QYanXyL3MePMv0Ydlwln_3JCwSqg/formResponse';
-
-  // Method 1: XMLHttpRequest (different CORS handling than fetch)
+               '&entry.1868616600=';
   try{
-    await new Promise((resolve) => {
-      const xhr = new XMLHttpRequest();
-      xhr.open('POST', FORM_URL, true);
-      xhr.setRequestHeader('Content-Type', 'application/x-www-form-urlencoded');
-      xhr.onload = xhr.onerror = xhr.ontimeout = resolve;
-      xhr.timeout = 5000;
-      xhr.send(body);
-    });
-  }catch(e){}
-
-  // Method 2: fetch no-cors
-  try{
-    fetch(FORM_URL, {
+    fetch('https://docs.google.com/forms/d/e/1FAIpQLSfxsfSzKLcqtHxbSxVUA_QYanXyL3MePMv0Ydlwln_3JCwSqg/formResponse', {
       method:'POST',
       mode:'no-cors',
       headers:{'Content-Type':'application/x-www-form-urlencoded'},
       body
     });
   }catch(e){}
-
-  // Method 3: Direct Apps Script (backup)
-  try{
-    fetch(API_URL + '?action=addWord&en=' + encodeURIComponent(en) +
-      '&he=' + encodeURIComponent(he) + '&tip=' + encodeURIComponent(tip||''),
-      {credentials:'omit',redirect:'follow'});
-  }catch(e){}
-
-  if(statusEl){statusEl.textContent='✅ נשמר!';statusEl.className='modal-status ok';}
-  burstCenter();
-  setTimeout(closeAddWord,1000);
 }
 
 // ════════════════════════════════════
