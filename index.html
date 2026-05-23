@@ -1432,14 +1432,28 @@ const GAMES = [
 ];
 
 const SENTENCES = [
-  {q:"I sent you a _____ on WhatsApp.",  a:"Message",  opts:["Message","Pocket","Cheap","Hurry"]},
-  {q:"The _____ delivers letters.",       a:"Postman",  opts:["Postman","Weekend","Problem","Sweater"]},
-  {q:"It's the _____, no school!",        a:"Weekend",  opts:["Weekend","Through","Expensive","Spoon"]},
-  {q:"I have a _____ in my pocket.",      a:"Problem",  opts:["Problem","Message","Cheap","Table"]},
-  {q:"This coat is too _____.",           a:"Expensive",opts:["Expensive","Cheap","Hurry","Blue"]},
-  {q:"Please _____! We are late!",        a:"Hurry",    opts:["Hurry","Jump","Family","Postman"]},
-  {q:"She wore a warm _____ today.",      a:"Sweater",  opts:["Sweater","Pocket","Table","Apple"]},
-  {q:"The cat ran _____ the garden.",     a:"Through",  opts:["Through","Jump","Blue","Spoon"]},
+  // Beginner-medium
+  {q:"My mom sent me a _____ saying she will be home late tonight.",          a:"Message",   opts:["Message","Pocket","Problem","Hurry"]},
+  {q:"The friendly _____ knocked on our door and handed us a big package.",   a:"Postman",   opts:["Postman","Farmer","Weekend","Sweater"]},
+  {q:"We are going to the beach this _____ because the weather is perfect.",  a:"Weekend",   opts:["Weekend","Evening","Problem","Expensive"]},
+  {q:"She kept the small stone inside her _____ so she wouldn't lose it.",    a:"Pocket",    opts:["Pocket","Table","Basket","Spoon"]},
+  {q:"The new phone was so _____ that only a few kids in class had one.",     a:"Expensive", opts:["Expensive","Cheap","Blue","Full"]},
+  {q:"He decided to _____ over the puddle instead of walking around it.",     a:"Jump",      opts:["Jump","Hurry","Pull","Ring"]},
+  {q:"She stirred the hot soup carefully with a wooden _____.",               a:"Spoon",     opts:["Spoon","Fork","Knife","Ring"]},
+  {q:"The whole _____ gathered around the table for a big holiday dinner.",   a:"Family",    opts:["Family","Message","Weekend","Postman"]},
+  {q:"The teacher asked us to _____ up because we were running out of time.", a:"Hurry",     opts:["Hurry","Jump","Pull","Ring"]},
+  {q:"She put on her favourite blue _____ because it was cold outside.",      a:"Sweater",   opts:["Sweater","Glove","Dress","Jacket"]},
+  // Harder
+  {q:"The water was flowing _____ the tunnel under the old stone bridge.",    a:"Through",   opts:["Through","Above","Beside","Below"]},
+  {q:"They managed to buy three pizzas because the price was surprisingly _____.", a:"Cheap", opts:["Cheap","Expensive","Empty","Full"]},
+  {q:"She found a short _____ that connects the park to the main street.",    a:"Through",   opts:["Through","Narrow","Quickly","Empty"]},
+  {q:"He left his homework on the kitchen _____ and forgot it at home.",      a:"Table",     opts:["Table","Chair","Floor","Shelf"]},
+  {q:"The doctor said there was no serious _____ and that she would recover quickly.", a:"Problem", opts:["Problem","Message","Weekend","Table"]},
+  {q:"The little bird flew quickly _____ the open window and landed on a branch.", a:"Through", opts:["Through","Beside","Behind","Along"]},
+  {q:"They chose the _____ flight tickets early in the morning to save money.",a:"Cheap",    opts:["Cheap","Expensive","Full","Empty"]},
+  {q:"The doctor left a detailed _____ explaining exactly how to take the medicine.", a:"Message", opts:["Message","Problem","Table","Pocket"]},
+  {q:"My grandfather sat at the wooden _____ and wrote letters by hand every Sunday.", a:"Table", opts:["Table","Pocket","Floor","Message"]},
+  {q:"She had to _____ to catch the last bus before it left the station.",    a:"Hurry",     opts:["Hurry","Jump","Narrow","Pull"]},
 ];
 
 function renderGamesHub(){
@@ -1774,12 +1788,83 @@ function initSentenceGame(gc){
 // ════════════════════════════════════
 //  WORD LIST
 // ════════════════════════════════════
+// ─── CONJUGATION PANEL ───
+let _conjOpen = null;
+
+async function showConjugations(en, he, btnEl){
+  if(_conjOpen===en){
+    // close
+    const panel=document.getElementById('conj_'+en.replace(/\s/g,'_'));
+    if(panel) panel.remove();
+    _conjOpen=null;
+    return;
+  }
+  _conjOpen=en;
+
+  // Remove any open panel
+  document.querySelectorAll('.conj-panel').forEach(p=>p.remove());
+
+  // Insert loading panel after the card
+  const card=btnEl.closest('.wl-card');
+  const loadDiv=document.createElement('div');
+  loadDiv.id='conj_'+en.replace(/\s/g,'_');
+  loadDiv.className='conj-panel';
+  loadDiv.innerHTML=`<div style="text-align:center;padding:12px;color:var(--muted);font-size:14px">🤖 טוען תצורות...</div>`;
+  card.after(loadDiv);
+
+  try{
+    const res = await fetch('https://api.anthropic.com/v1/messages',{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({
+        model:'claude-sonnet-4-20250514',
+        max_tokens:400,
+        messages:[{role:'user',content:`For the English word "${en}" (Hebrew: ${he}), provide key forms in JSON only, no markdown:
+{"base":"...","past":"...","present3rd":"...","future":"...","ing":"...","plural":"...","adjective":"...","example":"short sentence using the word"}
+If a form doesn't apply write "-".`}]
+      })
+    });
+    const data=await res.json();
+    const text=data?.content?.[0]?.text||'';
+    let forms={};
+    try{ forms=JSON.parse(text.replace(/```json|```/g,'').trim()); }catch(e){}
+
+    const rows=[
+      ['📖 בסיס',forms.base||en],
+      ['⏮ עבר',forms.past||'-'],
+      ['▶ הווה (he/she)',forms.present3rd||'-'],
+      ['⏭ עתיד',forms.future||'-'],
+      ['🔄 ing',forms.ing||'-'],
+      ['👥 רבים',forms.plural||'-'],
+      ['🎨 תיאורי',forms.adjective||'-'],
+      ['💬 דוגמה',forms.example||'-'],
+    ].filter(r=>r[1]&&r[1]!=='-');
+
+    loadDiv.innerHTML=`
+      <div style="background:linear-gradient(135deg,#EDE9FE,#E0F2FE);border-radius:14px;
+        padding:14px;border:2px solid var(--purple-l);margin-top:4px">
+        <div style="font-family:'Baloo 2',cursive;font-size:15px;font-weight:800;
+          color:var(--purple);margin-bottom:10px">📚 תצורות של "${en}"</div>
+        <div style="display:grid;gap:6px">
+          ${rows.map(r=>`
+            <div style="display:flex;gap:8px;align-items:baseline">
+              <span style="font-size:13px;color:var(--muted);font-weight:600;min-width:120px;flex-shrink:0">${r[0]}</span>
+              <span style="font-family:'Baloo 2',cursive;font-size:15px;font-weight:700;color:var(--ink)">${r[1]}</span>
+            </div>`).join('')}
+        </div>
+      </div>`;
+  }catch(e){
+    loadDiv.innerHTML=`<div style="padding:10px;color:#991B1B;font-size:13px">❌ שגיאה בטעינה</div>`;
+  }
+}
+
 function renderWordList(){
   const area=document.getElementById('wordlist-area');
   if(!vocab.length){ area.innerHTML='<div style="text-align:center;padding:40px;color:var(--muted)">אין מילים במאגר</div>'; return; }
   const search=document.getElementById('wl-search');
   const q=search?search.value.toLowerCase():'';
-  const filtered=vocab.filter(w=>w.en.toLowerCase().includes(q)||w.he.includes(q));
+  // Newest first
+  const filtered=[...vocab].reverse().filter(w=>w.en.toLowerCase().includes(q)||w.he.includes(q));
 
   let html=`<div style="display:flex;gap:8px;margin-bottom:14px;align-items:center">
     <input id="wl-search" type="text" placeholder="🔍 חפש מילה..." dir="rtl"
@@ -1788,30 +1873,35 @@ function renderWordList(){
       font-size:15px;font-family:'Heebo',sans-serif;outline:none">
     <div style="font-size:13px;font-weight:700;color:var(--muted);white-space:nowrap">${filtered.length} מילים</div>
   </div>
-  <div style="display:flex;flex-direction:column;gap:8px">`;
+  <div style="display:flex;flex-direction:column;gap:6px" id="wl-list">`;
 
   filtered.forEach((w,i)=>{
     const learned=getStats(w.en).learned;
-    html+=`<div style="background:#fff;border-radius:16px;padding:14px 16px;
-      border:2px solid ${learned?'#A7F3D0':'var(--purple-l)'};
-      display:flex;align-items:center;justify-content:space-between;gap:12px;
-      box-shadow:0 3px 10px rgba(0,0,0,.05);animation:cardIn .2s ease both;animation-delay:${i*0.02}s">
-      <div>
-        <div style="font-family:'Baloo 2',cursive;font-size:18px;font-weight:800;color:var(--purple)">${w.en}</div>
-        <div style="font-size:15px;font-weight:700;color:var(--ink)">${w.he}</div>
-      </div>
-      <div style="display:flex;align-items:center;gap:8px">
-        ${learned?'<span style="font-size:18px">✅</span>':''}
-        <button onclick="speak('${w.en.replace(/'/g,"\'")}');event.stopPropagation()"
-          style="background:linear-gradient(135deg,#E0F2FE,#BAE6FD);border:2px solid #38BDF8;
-          border-radius:10px;padding:7px 12px;font-size:16px;cursor:pointer">🔊</button>
+    const safeEn=w.en.replace(/'/g,"\\'");
+    html+=`<div class="wl-card" style="background:#fff;border-radius:18px;padding:14px 16px;
+      border:2.5px solid ${learned?'#6EE7B7':'var(--purple-l)'};
+      box-shadow:0 4px 12px rgba(0,0,0,.06);animation:cardIn .2s ease both;animation-delay:${i*0.02}s">
+      <div style="display:flex;align-items:center;justify-content:space-between;gap:10px">
+        <div style="flex:1">
+          <div style="font-family:'Baloo 2',cursive;font-size:19px;font-weight:800;color:var(--purple)">${w.en}</div>
+          <div style="font-size:15px;font-weight:700;color:var(--ink)">${w.he}</div>
+        </div>
+        <div style="display:flex;align-items:center;gap:6px;flex-shrink:0">
+          ${learned?'<span style="font-size:18px">✅</span>':''}
+          <button onclick="speak('${safeEn}');event.stopPropagation()"
+            style="background:linear-gradient(135deg,var(--sky),var(--sky-d));border:none;
+            border-radius:10px;padding:8px 12px;font-size:16px;cursor:pointer;color:#fff">🔊</button>
+          <button onclick="showConjugations('${safeEn}','${w.he.replace(/'/g,"\\'")}',this)"
+            style="background:linear-gradient(135deg,var(--purple),var(--pink));border:none;
+            border-radius:10px;padding:8px 12px;font-size:13px;font-weight:800;
+            cursor:pointer;color:#fff;font-family:'Baloo 2',cursive">📖 תצורות</button>
+        </div>
       </div>
     </div>`;
   });
 
   html+=`</div>`;
   area.innerHTML=html;
-  // restore focus to search if it existed
   const s=document.getElementById('wl-search');
   if(s&&q) s.focus();
 }
